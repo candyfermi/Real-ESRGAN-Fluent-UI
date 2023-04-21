@@ -19,3 +19,6 @@
   
   协议: BSD-3-Clause license
   
+## 注
+
+本项目只是个练手项目
