@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>image/logo.png</file>
+
+        <file>qss/main_window.qss</file>
+    </qresource>
+</RCC>
