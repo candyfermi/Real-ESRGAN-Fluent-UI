@@ -10,7 +10,6 @@ def main():
 
     # 创建主窗口
     window = MainWindow()
-    window.setWindowTitle("My PyQt App")
 
     # 显示主窗口
     window.show()

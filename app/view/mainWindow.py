@@ -81,7 +81,7 @@ class MainWindow(FramelessWindow):
 
     def initNavigation(self):
         self.addSubInterface(
-            self.imageProcessInterface, "imageProcessInterface", FluentIcon.PHOTO, "图片处理",NavigationItemPosition.TOP
+            self.imageProcessInterface, "imageProcessInterface", FluentIcon.ZOOM, "超分辨率",NavigationItemPosition.TOP
         )
 
         self.navigationInterface.setDefaultRouteKey(self.imageProcessInterface.objectName())
@@ -111,7 +111,7 @@ class MainWindow(FramelessWindow):
         self.resize(960, 780)
         self.setMinimumWidth(760)
         self.setWindowIcon(QIcon(':/res/image/icon.png'))
-        self.setWindowTitle('PyQt-Fluent-Widgets')
+        self.setWindowTitle('RealESRGAN Fluent UI')
         self.titleBar.setAttribute(Qt.WA_StyledBackground)
 
         desktop = QApplication.desktop().availableGeometry()

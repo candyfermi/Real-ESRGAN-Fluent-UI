@@ -1,17 +1,18 @@
-SettingInterface,
+ImageProcessInterface,
 #view {
-    background-color: transparent
+    background-color: transparent;
+    border: none;
+}
+
+QWidget#imageBox{
+    background-color: rgb(35, 35, 35);
+    border: 1px solid rgb(35, 35, 35);
+    border-radius: 6px;
 }
 
 QScrollArea {
    border: none
    background-color: transparent;
-}
-
-QWidget {
-    background-color: rgb(50, 50, 50);
-    border: 1px solid rgb(35, 35, 35);
-    border-radius: 4px;
 }
 
 QLabel {
