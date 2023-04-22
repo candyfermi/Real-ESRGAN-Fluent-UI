@@ -1,0 +1,93 @@
+StackedWidget {
+    border: 1px solid rgb(29, 29, 29);
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 10px;
+    background-color: rgb(39, 39, 39);
+}
+
+
+MainWindow {
+    background-color: rgb(32, 32, 32);
+}
+
+CustomTitleBar {
+    background-color: transparent;
+}
+
+CustomTitleBar > QLabel,
+Widget > QLabel {
+    color: white;
+}
+
+
+CustomTitleBar>QLabel#titleLabel {
+    background: transparent;
+    font: 13px 'Segoe UI';
+    padding: 0 4px
+}
+
+MinimizeButton {
+    qproperty-normalColor: white;
+    qproperty-normalBackgroundColor: transparent;
+    qproperty-hoverColor: white;
+    qproperty-hoverBackgroundColor: rgba(255, 255, 255, 26);
+    qproperty-pressedColor: white;
+    qproperty-pressedBackgroundColor: rgba(255, 255, 255, 51)
+}
+
+
+MaximizeButton {
+    qproperty-normalColor: white;
+    qproperty-normalBackgroundColor: transparent;
+    qproperty-hoverColor: white;
+    qproperty-hoverBackgroundColor: rgba(255, 255, 255, 26);
+    qproperty-pressedColor: white;
+    qproperty-pressedBackgroundColor: rgba(255, 255, 255, 51)
+}
+
+CloseButton {
+    qproperty-normalColor: white;
+    qproperty-normalBackgroundColor: transparent;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 5px;
+    padding-right: 2px;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 5px;
+    padding-bottom: 2px;
+}
+
+/*隐藏上箭头*/
+QScrollBar::sub-line {
+    background: transparent;
+}
+
+/*隐藏下箭头*/
+QScrollBar::add-line {
+    background: transparent;
+}
+
+QScrollBar::handle {
+    background: rgb(122, 122, 122);
+    border: 2px solid rgb(128, 128, 128);
+    border-radius: 1px;
+}
+
+QScrollBar::handle:vertical {
+    min-height: 40px;
+}
+
+QScrollBar::handle:horizontal {
+    min-width: 40px;
+}
+
+QScrollBar::add-page,
+QScrollBar::sub-page {
+    background: none;
+}

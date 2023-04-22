@@ -13,7 +13,7 @@ class CustomTitleBar(TitleBar):
         # add window image
         self.iconLabel = QLabel(self)
         self.iconLabel.setFixedSize(18, 18)
-        self.hBoxLayout.insertSpacing(0, 50)
+        self.hBoxLayout.insertSpacing(0, 10)
         self.hBoxLayout.insertWidget(1, self.iconLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
         self.window().windowIconChanged.connect(self.setIcon)
 

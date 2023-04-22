@@ -8,6 +8,8 @@ class StyleSheet(StyleSheetBase, Enum):
     """ Style sheet  """
 
     MAIN_WINDOW = "main_window"
+    IMAGE_PROCESS_INTERFACE = "image_process_interface"
 
     def path(self, theme=Theme.AUTO):
-        return f":/res/qss/{self.value}.qss"
+        theme = qconfig.theme if theme == Theme.AUTO else theme
+        return f":/res/qss/{theme.value.lower()}/{self.value}.qss"

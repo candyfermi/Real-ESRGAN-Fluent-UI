@@ -1,7 +1,11 @@
 <RCC>
     <qresource prefix="/res">
         <file>image/logo.png</file>
+        <file>image/icon.png</file>
 
-        <file>qss/main_window.qss</file>
+        <file>qss/dark/main_window.qss</file>
+        <file>qss/light/main_window.qss</file>
+        <file>qss/dark/image_process_interface.qss</file>
+        <file>qss/light/image_process_interface.qss</file>
     </qresource>
 </RCC>
