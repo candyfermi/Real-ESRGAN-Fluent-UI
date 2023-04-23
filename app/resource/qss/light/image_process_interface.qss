@@ -10,6 +10,11 @@ QWidget#imageBox {
     border-radius: 6px;
 }
 
+QFrame#separator{
+    color: rgb(234, 234, 234);
+    height: 2px;
+}
+
 QScrollArea {
    border: none
    background-color: transparent;

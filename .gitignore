@@ -160,3 +160,5 @@ cython_debug/
 .idea/
 
 process/realesrgan-ncnn-vulkan-20220424-windows/models
+
+config/

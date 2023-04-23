@@ -7,5 +7,7 @@
         <file>qss/light/main_window.qss</file>
         <file>qss/dark/image_process_interface.qss</file>
         <file>qss/light/image_process_interface.qss</file>
+        <file>qss/dark/setting_interface.qss</file>
+        <file>qss/light/setting_interface.qss</file>
     </qresource>
 </RCC>

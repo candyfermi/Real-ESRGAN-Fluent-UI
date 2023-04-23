@@ -19,7 +19,7 @@ class Config(QConfig):
 
     # folders
     tmpFolder = ConfigItem(
-        "Folders", "Download", "app/tmp", FolderValidator())
+        "Folders", "Download", "tmp", FolderValidator())
 
     # main window
     dpiScale = OptionsConfigItem(
@@ -33,6 +33,11 @@ class Config(QConfig):
     # software update
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
 
+
+YEAR = 2023
+AUTHOR = "Candy Fermi"
+VERSION = "v0.0.1"
+REPO_URL = "https://github.com/candyfermi/Real-ESRGAN-Fluent-UI"
 
 cfg = Config()
 qconfig.load('app/config/config.json', cfg)

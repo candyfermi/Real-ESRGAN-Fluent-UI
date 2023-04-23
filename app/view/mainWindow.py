@@ -11,6 +11,7 @@ from app.componets.customTitleBar import CustomTitleBar
 from app.view.imageProcessInterface import ImageProcessInterface
 
 from app.common import resource
+from app.view.settingInterface import SettingInterface
 
 
 class StackedWidget(QFrame):
@@ -57,6 +58,7 @@ class MainWindow(FramelessWindow):
         self.navigationInterface = NavigationInterface(self, True, True)
 
         self.imageProcessInterface = ImageProcessInterface(self)
+        self.settingInterface = SettingInterface(self)
 
         # initialize layout
         self.initLayout()
@@ -81,7 +83,12 @@ class MainWindow(FramelessWindow):
 
     def initNavigation(self):
         self.addSubInterface(
-            self.imageProcessInterface, "imageProcessInterface", FluentIcon.ZOOM, "超分辨率",NavigationItemPosition.TOP
+            self.imageProcessInterface, "imageProcessInterface", FluentIcon.ZOOM, self.tr("超分辨率"),
+            NavigationItemPosition.TOP
+        )
+        self.addSubInterface(
+            self.settingInterface, "settingInterface", FluentIcon.SETTING, self.tr("设置"),
+            NavigationItemPosition.BOTTOM
         )
 
         self.navigationInterface.setDefaultRouteKey(self.imageProcessInterface.objectName())
@@ -93,7 +100,6 @@ class MainWindow(FramelessWindow):
             self.imageProcessInterface.objectName()
         )
         self.stackWidget.setCurrentIndex(0)
-
 
     def addSubInterface(self, interface: QWidget, objectName: str, icon, text: str,
                         position=NavigationItemPosition.SCROLL):
@@ -109,7 +115,8 @@ class MainWindow(FramelessWindow):
 
     def initWindow(self):
         self.resize(960, 780)
-        self.setMinimumWidth(760)
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(400)
         self.setWindowIcon(QIcon(':/res/image/icon.png'))
         self.setWindowTitle('RealESRGAN Fluent UI')
         self.titleBar.setAttribute(Qt.WA_StyledBackground)
@@ -125,5 +132,4 @@ class MainWindow(FramelessWindow):
 
     def resizeEvent(self, e):
         self.titleBar.move(46, 0)
-        self.titleBar.resize(self.width()-46, self.titleBar.height())
-
+        self.titleBar.resize(self.width() - 46, self.titleBar.height())
