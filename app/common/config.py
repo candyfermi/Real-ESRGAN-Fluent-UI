@@ -39,7 +39,7 @@ class Config(QConfig):
 
 YEAR = 2023
 AUTHOR = "Candy Fermi"
-VERSION = "v0.0.1"
+VERSION = "v0.1.0"
 REPO_URL = "https://github.com/candyfermi/Real-ESRGAN-Fluent-UI"
 
 cfg = Config()
