@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="18%" align="center" src="https://raw.githubusercontent.com/candyfermi/Real-ESRGAN-Fluent-UI/master/app/resource/image/icon.png" alt="logo">
+  <img width="20%" align="center" src="https://raw.githubusercontent.com/candyfermi/Real-ESRGAN-Fluent-UI/master/docs/resource/icon.png" alt="logo">
 </p>
 
 <h1 align="center">
@@ -11,6 +11,13 @@
 ## 使用
 
 在[这里](https://github.com/candyfermi/Real-ESRGAN-Fluent-UI/releases)下载可执行文件，下载后解压即可使用，目前仅支持windows平台
+
+<p align="left">
+  <img width="50%" align="center" src="https://raw.githubusercontent.com/candyfermi/Real-ESRGAN-Fluent-UI/master/docs/resource/window_light.png" alt="logo">
+</p>
+<p align="left">
+  <img width="50%" align="center" src="https://raw.githubusercontent.com/candyfermi/Real-ESRGAN-Fluent-UI/master/docs/resource/window_dark.png" alt="logo">
+</p>
 
 ## 本项目使用了以下开源项目的代码
 
