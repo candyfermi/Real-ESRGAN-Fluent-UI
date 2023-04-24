@@ -17,7 +17,6 @@ QFrame#separator{
 
 QLabel#infoLabel {
     font: 12px 'Microsoft YaHei';
-    padding: 2px
     background-color: transparent;
     color: white;
 }
