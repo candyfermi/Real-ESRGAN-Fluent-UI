@@ -6,8 +6,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLay
 from PyQt5.QtGui import QPixmap, QWheelEvent, QImage, QPainter
 from PyQt5.QtCore import Qt, QMimeData, QEasingCurve, QEvent, pyqtSignal, QObject
 from PyQt5.uic.properties import QtGui
-from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon
+from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon, Theme
 import sys
+
+from app.common.config import cfg
 
 
 class ImageBox(QWidget):
@@ -47,6 +49,8 @@ class ImageBox(QWidget):
         self.__enableDrag = False
         self.__acceptDir = acceptDir
         self.__lock = False
+
+        cfg.themeChanged.connect(self.__onThemeChanged)
 
         # 将 view 子控件添加到布局管理器中
         layout.addWidget(self.view)
@@ -98,8 +102,8 @@ class ImageBox(QWidget):
         else:
             self.dispIcon(FluentIcon.PHOTO)
 
-    def dispIcon(self, icon: FluentIcon):
-        self.__label.setPixmap(QPixmap(icon.path()))
+    def dispIcon(self, icon: FluentIcon, theme: Theme = Theme.AUTO):
+        self.__label.setPixmap(QPixmap(icon.path(theme)))
         self.moveLabelToCenter()
 
     def dragEnterEvent(self, event):
@@ -258,6 +262,16 @@ class ImageBox(QWidget):
                                                   height))
 
             self.__updateInfoLabel()
+
+    def __onThemeChanged(self, theme):
+        print(theme)
+        if self.__url is None:
+            if self.__enableDrop:
+                self.dispIcon(FluentIcon.ADD)
+            else:
+                self.dispIcon(FluentIcon.PHOTO)
+        elif os.path.isdir(self.__url):
+            self.dispIcon(FluentIcon.FOLDER)
 
     def resizeEvent(self, event):
         self.moveLabelToCenter()
