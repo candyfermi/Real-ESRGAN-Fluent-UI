@@ -2,10 +2,9 @@ import mimetypes
 import os
 import subprocess
 
-import cv2
-from fs.memoryfs import MemoryFS
-
 from enum import Enum
+
+from app.common.config import cfg
 
 
 class ModelName(Enum):
@@ -24,9 +23,9 @@ def realesrganProcess(inputPath: str,
                       gpuId: list = None,
                       loadProcSave: list = None,
                       enableTTA: bool = False,
-                      outputFormat: str = "ext/png",
+                      outputFormat: str = None,
                       verboseOutput: bool = False):
-    command = f"./realesrgan-ncnn-vulkan-20220424-windows/realesrgan-ncnn-vulkan.exe -i {inputPath} -o {outputPath} -s {scale} -t {tileSize}"
+    command = f"process/realesrgan-ncnn-vulkan-20220424-windows/realesrgan-ncnn-vulkan.exe -i {inputPath} -o {outputPath} -s {scale} -t {tileSize}"
     if modelPath is not None:
         command += f" -m {modelPath}"
     command += f" -n {modelName.value}"
@@ -42,18 +41,18 @@ def realesrganProcess(inputPath: str,
             command += f" -j {loadProcSave[0]}:{loadProcSave[1]},{loadProcSave[2]},{loadProcSave[3]}:{loadProcSave[4]}"
     if enableTTA:
         command += " -x"
-    command += f" -f {outputFormat}"
+    if outputFormat is not None:
+        command += f" -f {outputFormat}"
     if verboseOutput:
         command += " -v"
 
     print(command)
     return subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+                            stderr=subprocess.STDOUT)
 
 
 if __name__ == "__main__":
-    memFs = MemoryFS
-    p = realesrganProcess("input.jpg", "NUL")
+    p = realesrganProcess("input.jpg", "output.png")
     while p.poll() is None:
         line = p.stdout.readline()
         line = line.strip()

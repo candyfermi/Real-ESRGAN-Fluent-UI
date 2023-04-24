@@ -15,6 +15,12 @@ QFrame#separator{
     height: 2px;
 }
 
+QLabel#infoLabel {
+    font: 12px 'Microsoft YaHei';
+    background-color: transparent;
+    padding: 2px
+}
+
 QScrollArea {
    border: none
    background-color: transparent;

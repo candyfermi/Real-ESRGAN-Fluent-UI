@@ -12,6 +12,8 @@ import sys
 
 class ImageBox(QWidget):
     dropSignal = pyqtSignal(str)
+    infoChange = pyqtSignal(str)
+    imgGeometryChange = pyqtSignal(int, int, int, int)
 
     def __init__(self, parent=None, enableDrop=False, acceptDir=True):
         super().__init__(parent=parent)
@@ -44,6 +46,7 @@ class ImageBox(QWidget):
         self.__enableDrop = enableDrop
         self.__enableDrag = False
         self.__acceptDir = acceptDir
+        self.__lock = False
 
         # 将 view 子控件添加到布局管理器中
         layout.addWidget(self.view)
@@ -56,7 +59,15 @@ class ImageBox(QWidget):
     def url(self):
         return self.__url
 
+    def lock(self):
+        return self.__lock
+
+    def setLock(self, lock: bool):
+        self.__lock = lock
+
     def setImage(self, url):
+        if self.__lock:
+            return
         if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", "jpeg", ".png", ".bmp"]:
             self.__url = url
             self.__originImage = QImage(url)
@@ -64,12 +75,15 @@ class ImageBox(QWidget):
             self.__label.setGeometry(QtCore.QRect(0, 0, self.__label.pixmap().width(), self.__label.pixmap().height()))
             self.__originImageScaleFactor = 1
             self.moveLabelToCenter()
+            self.__updateInfoLabel()
+            self.setPreferredImageSize()
             self.__enableDrag = True
         elif self.__acceptDir and os.path.isdir(url):
             self.__url = url
             self.__originImage = None
             self.__originImageScaleFactor = 1
             self.__enableDrag = False
+            self.__updateInfoLabel()
             self.dispIcon(FluentIcon.FOLDER)
 
     def clearImage(self):
@@ -78,6 +92,7 @@ class ImageBox(QWidget):
         self.__originImage = None
         self.__originImageScaleFactor = 1
         self.__enableDrag = False
+        self.__updateInfoLabel()
         if self.__enableDrop:
             self.dispIcon(FluentIcon.ADD)
         else:
@@ -94,6 +109,9 @@ class ImageBox(QWidget):
             event.ignore()
 
     def dropEvent(self, event):
+        if self.__lock:
+            event.ignore()
+            return
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
             if len(urls) is 1:
@@ -107,7 +125,9 @@ class ImageBox(QWidget):
                     self.__originImageScaleFactor = 1
                     self.moveLabelToCenter()
                     self.__enableDrag = True
+                    self.__updateInfoLabel()
                     self.dropSignal.emit(url)
+                    self.setPreferredImageSize()
                     event.accept()
                 elif self.__acceptDir and os.path.isdir(url):
                     self.__url = url
@@ -116,6 +136,7 @@ class ImageBox(QWidget):
                     self.__enableDrag = False
                     self.__label.setPixmap(QPixmap(FluentIcon.FOLDER.path()))
                     self.moveLabelToCenter()
+                    self.__updateInfoLabel()
                     self.dropSignal.emit(url)
                     event.accept()
                 else:
@@ -154,6 +175,13 @@ class ImageBox(QWidget):
                                                   self.__label.pixmap().width(),
                                                   self.__label.pixmap().height()))
 
+            self.imgGeometryChange.emit(self.__label.x(),
+                                        self.__label.y(),
+                                        self.__label.pixmap().width(),
+                                        self.__label.pixmap().height())
+
+            self.__updateInfoLabel()
+
             event.accept()
 
     def mousePressEvent(self, event):
@@ -171,12 +199,65 @@ class ImageBox(QWidget):
                 # 更新图片的位置
                 self.__label.move(self.__label.pos() + offset)
 
+                self.imgGeometryChange.emit(self.__label.x(),
+                                            self.__label.y(),
+                                            self.__label.pixmap().width(),
+                                            self.__label.pixmap().height())
+
                 # 更新上一次记录的鼠标位置
                 self.__lastMousePos = event.pos()
 
     def moveLabelToCenter(self):
         self.__label.move((self.view.width() - self.__label.width()) // 2,
                           (self.view.height() - self.__label.height()) // 2)
+
+    def __updateInfoLabel(self):
+        if self.__originImage is not None:
+            self.infoChange.emit(
+                f"{self.__originImage.width()}x{self.__originImage.height()}, "
+                f"{self.__originImageScaleFactor * 100:.1f}%"
+            )
+        else:
+            self.infoChange.emit("")
+
+    def setPreferredImageSize(self):
+        if self.__originImage is not None:
+            widthScale = self.view.width() / self.__originImage.width()
+            heightScale = self.view.height() / self.__originImage.height()
+            self.__originImageScaleFactor = widthScale if widthScale < heightScale else heightScale
+
+            self.__label.setPixmap(
+                QPixmap.fromImage(self.__originImage).scaled(self.__originImage.width() * self.__originImageScaleFactor,
+                                                             self.__originImage.width() * self.__originImageScaleFactor,
+                                                             Qt.KeepAspectRatio,
+                                                             Qt.FastTransformation))
+
+            self.__label.setGeometry(QtCore.QRect(0,
+                                                  (self.view.height() - self.__label.pixmap().height()) // 2,
+                                                  self.__label.pixmap().width(),
+                                                  self.__label.pixmap().height()))
+
+            self.imgGeometryChange.emit(self.__label.x(),
+                                        self.__label.y(),
+                                        self.__label.pixmap().width(),
+                                        self.__label.pixmap().height())
+
+            self.__updateInfoLabel()
+
+    def updateImgGeometry(self, x: int, y: int, width: int, height: int):
+        if self.__originImage is not None:
+            self.__originImageScaleFactor = width / self.__originImage.width()
+            self.__label.setPixmap(
+                QPixmap.fromImage(self.__originImage).scaled(width,
+                                                             height,
+                                                             Qt.KeepAspectRatio,
+                                                             Qt.FastTransformation))
+            self.__label.setGeometry(QtCore.QRect(x,
+                                                  y,
+                                                  width,
+                                                  height))
+
+            self.__updateInfoLabel()
 
     def resizeEvent(self, event):
         self.moveLabelToCenter()

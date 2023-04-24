@@ -31,7 +31,7 @@ class SettingInterface(ScrollArea):
         self.tmpFolderCard = PushSettingCard(
             self.tr("选择一个目录"),
             FluentIcon.FOLDER,
-            self.tr("临时文件目录"),
+            self.tr("程序输出将临时存储到此目录，若生成后没有执行移动操作则可以到此目录查看"),
             cfg.get(cfg.tmpFolder),
             self.tmpFolderGroup
         )

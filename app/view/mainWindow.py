@@ -1,7 +1,8 @@
 from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication
-from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, NavigationItemPosition, MessageBox, FluentIcon
+from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QMessageBox
+from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, NavigationItemPosition, MessageBox, FluentIcon, \
+    MessageDialog
 from qframelesswindow import FramelessWindow
 
 from app.common.signalBus import signalBus
@@ -133,3 +134,18 @@ class MainWindow(FramelessWindow):
     def resizeEvent(self, e):
         self.titleBar.move(46, 0)
         self.titleBar.resize(self.width() - 46, self.titleBar.height())
+
+    def closeEvent(self, event):
+        if self.imageProcessInterface.isProcessing():
+            closeDialog = MessageDialog(self.tr("关闭窗口"),
+                                        self.tr("图像处理进程正在后台运行，此时退出可能导致结果丢失，确定要关闭吗"),
+                                        self.window())
+            closeDialog.yesButton.clicked.connect(self.__close)
+            closeDialog.cancelButton.clicked.connect(lambda: event.ignore())
+            closeDialog.exec()
+        else:
+            event.accept()
+
+    def __close(self):
+        self.imageProcessInterface.stopProcess()
+        self.close()
