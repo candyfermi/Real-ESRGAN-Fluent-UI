@@ -43,4 +43,4 @@ VERSION = "v0.0.1"
 REPO_URL = "https://github.com/candyfermi/Real-ESRGAN-Fluent-UI"
 
 cfg = Config()
-qconfig.load('app/config/config.json', cfg)
+qconfig.load('config/config.json', cfg)
