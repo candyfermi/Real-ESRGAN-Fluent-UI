@@ -93,18 +93,22 @@ class ImageProcessInterface(ScrollArea):
         self.leftImgInput.setPlaceholderText(self.tr("选择一张图片或一个目录"))
         self.leftImgInput.setClearButtonEnabled(True)
 
-        self.leftImgInputImageButton = ToolButton(FluentIcon.PHOTO.path())
+        self.leftImgInputImageButton = ToolButton(self.leftImgInputLayout.widget())
+        self.leftImgInputImageButton.setIcon(FluentIcon.PHOTO)
         self.leftImgInputImageButton.setToolTip(self.tr("选择一张图片"))
-        self.leftImgInputDirButton = ToolButton(FluentIcon.FOLDER.path())
+        self.leftImgInputDirButton = ToolButton(self.leftImgInputLayout.widget())
+        self.leftImgInputDirButton.setIcon(FluentIcon.FOLDER)
         self.leftImgInputDirButton.setToolTip(self.tr("选择一个目录"))
 
         self.rightImgPathLine = LineEdit(self.rightImgOutputLayout.widget())
         self.rightImgPathLine.setEnabled(False)
 
-        self.rightImgPathOpenButton = ToolButton(FluentIcon.FOLDER.path())
-        self.rightImgPathOpenButton.setToolTip(self.tr("打开输出文件临时存储目录"))
-        self.rightImgOutputSaveButton = ToolButton(FluentIcon.SAVE.path())
+        self.rightImgOutputSaveButton = ToolButton(self.rightImgOutputLayout.widget())
+        self.rightImgOutputSaveButton.setIcon(FluentIcon.SAVE_AS)
         self.rightImgOutputSaveButton.setToolTip(self.tr("将结果移动到"))
+        self.rightImgPathOpenButton = ToolButton(self.rightImgOutputLayout.widget())
+        self.rightImgPathOpenButton.setIcon(FluentIcon.FOLDER)
+        self.rightImgPathOpenButton.setToolTip(self.tr("打开输出文件临时存储目录"))
         self.rightImgOutputSaveButton.setEnabled(False)
 
         self.separator = QFrame(self.vBoxLayout.widget())
@@ -144,8 +148,8 @@ class ImageProcessInterface(ScrollArea):
         self.leftImgInputLayout.addWidget(self.leftImgInputDirButton, 0, 4, 1, 1)
 
         self.rightImgOutputLayout.addWidget(self.rightImgPathLine, 0, 0, 1, 3)
-        self.rightImgOutputLayout.addWidget(self.rightImgPathOpenButton, 0, 3, 1, 1)
-        self.rightImgOutputLayout.addWidget(self.rightImgOutputSaveButton, 0, 4, 1, 1)
+        self.rightImgOutputLayout.addWidget(self.rightImgOutputSaveButton, 0, 3, 1, 1)
+        self.rightImgOutputLayout.addWidget(self.rightImgPathOpenButton, 0, 4, 1, 1)
 
         self.consoleGridLayout.addWidget(self.processButton)
 
