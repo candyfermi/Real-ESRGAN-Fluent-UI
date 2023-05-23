@@ -264,7 +264,6 @@ class ImageBox(QWidget):
             self.__updateInfoLabel()
 
     def __onThemeChanged(self, theme):
-        print(theme)
         if self.__url is None:
             if self.__enableDrop:
                 self.dispIcon(FluentIcon.ADD)

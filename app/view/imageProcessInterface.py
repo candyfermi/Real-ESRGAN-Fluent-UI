@@ -3,7 +3,7 @@ import re
 import shutil
 import sys
 
-from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt, QEventLoop, QTimer, QThread, QUrl
+from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt, QEventLoop, QTimer, QThread, QUrl, QPoint
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QVBoxLayout, QLabel, QSizePolicy, QGridLayout, \
     QFileDialog
@@ -13,6 +13,7 @@ from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, ScrollAre
 from app.common.config import cfg
 from app.common.styleSheet import StyleSheet
 from app.componets.imageBox import ImageBox
+from app.componets.progressTip import ProgressTip
 from process.realesrganProcess import realesrganProcess
 
 from app.common import resource
@@ -119,7 +120,7 @@ class ImageProcessInterface(ScrollArea):
 
         self.__processThread = None
 
-        self.stateToolTip = None
+        self.progressTip = None
 
         self.__initWidget()
 
@@ -288,10 +289,10 @@ class ImageProcessInterface(ScrollArea):
     def __startProcess(self):
         url = self.leftImgBox.url()
         if url is not None:
-            self.stateToolTip = StateToolTip(self.tr("正在处理"), self.tr("等等我吧"), self.window())
-            self.stateToolTip.closeButton.clicked.connect(self.__stopProcessConfirm)
-            self.stateToolTip.move(self.stateToolTip.getSuitablePos())
-            self.stateToolTip.show()
+            self.progressTip = ProgressTip(self.tr("正在处理"), self.window())
+            self.progressTip.closeButton.clicked.connect(self.__stopProcessConfirm)
+            self.progressTip.move(self.progressTip.getSuitablePos())
+            self.progressTip.show()
             self.__lockInputAndOutput(True)
             outputPath = f"{cfg.get(cfg.tmpFolder)}/{os.path.basename(url)}"
             self.__processThread = ProcessThread(url, outputPath)
@@ -300,9 +301,9 @@ class ImageProcessInterface(ScrollArea):
             self.__processThread.start()
 
     def __onProcessDone(self, success: bool, outputPath: str):
-        self.stateToolTip.closeButton.clicked.disconnect(self.__stopProcessConfirm)
-        self.stateToolTip.setState(True)
-        self.stateToolTip = None
+        self.progressTip.closeButton.clicked.disconnect(self.__stopProcessConfirm)
+        self.progressTip.setState(True)
+        self.progressTip = None
         if success:
             QTimer.singleShot(1000, lambda: self.rightImgBox.setImage(outputPath))
             QTimer.singleShot(1000, lambda: self.rightImgPathLine.setText(outputPath))
@@ -333,8 +334,9 @@ class ImageProcessInterface(ScrollArea):
         self.__lockInputAndOutput(False)
 
     def __onProcessProgressChanged(self, progress: float):
-        if self.stateToolTip is not None:
-            self.stateToolTip.setContent(self.tr("处理中: ") + f"{progress} %")
+        if self.progressTip is not None:
+            self.progressTip.setTitle(self.tr("正在处理") + f": {progress}%")
+            self.progressTip.setProgress(progress)
 
     def __stopProcessConfirm(self):
         if self.isProcessing():
@@ -342,7 +344,7 @@ class ImageProcessInterface(ScrollArea):
                                         self.tr("图像处理进程正在后台运行，此时停止可能导致结果丢失，确定要停止吗"),
                                         self.window())
             closeDialog.yesButton.clicked.connect(self.stopProcess)
-            closeDialog.cancelButton.clicked.connect(lambda: self.stateToolTip.show())
+            closeDialog.cancelButton.clicked.connect(lambda: self.progressTip.show())
             closeDialog.exec()
 
     def stopProcess(self):
@@ -353,9 +355,14 @@ class ImageProcessInterface(ScrollArea):
             self.__processThread.quit()
             self.__processThread.wait()
             self.__processThread = None
-            self.stateToolTip.closeButton.clicked.disconnect(self.__stopProcessConfirm)
-            self.stateToolTip = None
+            self.progressTip.closeButton.clicked.disconnect(self.__stopProcessConfirm)
+            self.progressTip = None
             self.__lockInputAndOutput(False)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.progressTip is not None:
+            self.progressTip.move(self.progressTip.getSuitablePos())
 
 
 if __name__ == "__main__":

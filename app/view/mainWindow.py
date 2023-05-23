@@ -2,7 +2,7 @@ from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QMessageBox
 from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, NavigationItemPosition, MessageBox, FluentIcon, \
-    MessageDialog
+    MessageDialog, qrouter
 from qframelesswindow import FramelessWindow
 
 from app.common.signalBus import signalBus
@@ -92,7 +92,7 @@ class MainWindow(FramelessWindow):
             NavigationItemPosition.BOTTOM
         )
 
-        self.navigationInterface.setDefaultRouteKey(self.imageProcessInterface.objectName())
+        qrouter.setDefaultRouteKey(self.stackWidget, self.imageProcessInterface.objectName())
 
         self.stackWidget.currentWidgetChanged.connect(
             lambda w: self.navigationInterface.setCurrentItem(w.objectName())
@@ -145,6 +145,10 @@ class MainWindow(FramelessWindow):
             closeDialog.exec()
         else:
             event.accept()
+
+    def onCurrentWidgetChanged(self, widget: QWidget):
+        self.navigationInterface.setCurrentItem(widget.objectName())
+        qrouter.push(self.stackWidget, widget.objectName())
 
     def __close(self):
         self.imageProcessInterface.stopProcess()

@@ -10,6 +10,7 @@ class StyleSheet(StyleSheetBase, Enum):
     MAIN_WINDOW = "main_window"
     IMAGE_PROCESS_INTERFACE = "image_process_interface"
     SETTING_INTERFACE = "setting_interface"
+    PROGRESS_TIP = "progress_tip"
 
     def path(self, theme=Theme.AUTO):
         theme = qconfig.theme if theme == Theme.AUTO else theme
