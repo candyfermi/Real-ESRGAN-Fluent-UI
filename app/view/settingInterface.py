@@ -7,7 +7,7 @@ from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSetti
 from qfluentwidgets import InfoBar
 from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
 from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog
+from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QVBoxLayout
 
 from app.common.config import cfg, AUTHOR, VERSION, YEAR, REPO_URL
 from app.common.styleSheet import StyleSheet
@@ -40,7 +40,7 @@ class SettingInterface(ScrollArea):
         self.personalizationGroup = SettingCardGroup(
             self.tr("个性化"), self.scrollWidget
         )
-        self.themeCard = OptionsSettingCard(
+        self.themeCard = ComboBoxSettingCard(
             cfg.themeMode,
             FluentIcon.BRUSH,
             self.tr("应用主题"),
@@ -59,7 +59,7 @@ class SettingInterface(ScrollArea):
             self.tr("更改应用程序的主题色"),
             self.personalizationGroup
         )
-        self.zoomCard = OptionsSettingCard(
+        self.zoomCard = ComboBoxSettingCard(
             cfg.dpiScale,
             FluentIcon.ZOOM,
             self.tr("界面缩放"),

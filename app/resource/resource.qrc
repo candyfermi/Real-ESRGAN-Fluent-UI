@@ -11,5 +11,7 @@
         <file>qss/light/setting_interface.qss</file>
         <file>qss/dark/progress_tip.qss</file>
         <file>qss/light/progress_tip.qss</file>
+        <file>qss/dark/params_dialog.qss</file>
+        <file>qss/light/params_dialog.qss</file>
     </qresource>
 </RCC>

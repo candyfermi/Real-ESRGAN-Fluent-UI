@@ -4,6 +4,8 @@ from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, Boo
                             OptionsValidator, RangeConfigItem, RangeValidator,
                             FolderListValidator, EnumSerializer, FolderValidator)
 
+from process.modelConst import ModelName
+
 
 class Language(Enum):
     """ Language enumeration """
@@ -28,6 +30,20 @@ class Config(QConfig):
     )
     language = OptionsConfigItem(
         "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), EnumSerializer(Language), restart=True
+    )
+
+    # 模型参数
+    modelFormat = OptionsConfigItem(
+        "Model", "Format", "Auto", OptionsValidator(["jpg", "png", "webp", "Auto"])
+    )
+
+    modelName = OptionsConfigItem(
+        "Model", "ModelName", ModelName.REALESRGAN_X4PLUS.value,
+        OptionsValidator([ModelName.REALESRGAN_X4PLUS.value, ModelName.REALESRGAN_X4PLUS_ANIME.value, ModelName.REALESRNET_X4PLUS.value])
+    )
+
+    modelEnableTTA = ConfigItem(
+        "Model", "EnableTTA", False, BoolValidator()
     )
 
     # Material

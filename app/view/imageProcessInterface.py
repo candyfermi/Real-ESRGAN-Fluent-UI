@@ -2,19 +2,22 @@ import os.path
 import re
 import shutil
 import sys
+from typing import Union
 
 from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt, QEventLoop, QTimer, QThread, QUrl, QPoint
-from PyQt5.QtGui import QIcon, QDesktopServices
+from PyQt5.QtGui import QIcon, QDesktopServices, QPainter, QColor
 from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QVBoxLayout, QLabel, QSizePolicy, QGridLayout, \
-    QFileDialog
+    QFileDialog, QScrollArea
 from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, ScrollArea, PushButton, FluentIcon, LineEdit, \
-    ToolButton, MessageDialog, StateToolTip, InfoBar, InfoBarPosition
+    ToolButton, MessageDialog, InfoBar, InfoBarPosition, ExpandGroupSettingCard, isDarkTheme, ComboBox, \
+    OptionsSettingCard, RangeSettingCard, SwitchSettingCard, ExpandLayout, VBoxLayout, SettingCardGroup
 
 from app.common.config import cfg
 from app.common.styleSheet import StyleSheet
 from app.componets.imageBox import ImageBox
+from app.componets.paramsDialog import ParamsDialog
 from app.componets.progressTip import ProgressTip
-from process.realesrganProcess import realesrganProcess
+from process.realesrganProcess import realesrganProcess, ModelName
 
 from app.common import resource
 
@@ -33,7 +36,13 @@ class ProcessThread(QThread):
         if os.path.isdir(self.__inputPath) and not os.path.exists(self.__outputPath):
             os.mkdir(self.__outputPath)
 
-        p = realesrganProcess(f"\"{self.__inputPath}\"", f"\"{self.__outputPath}\"")
+        p = realesrganProcess(
+            f"\"{self.__inputPath}\"",
+            f"\"{self.__outputPath}\"",
+            modelName=cfg.modelName.value,
+            enableTTA=cfg.modelEnableTTA.value,
+            outputFormat=None if cfg.modelFormat.value == "Auto" else cfg.modelFormat.value
+        )
         pattern = r'(\d+\.\d+)%'
 
         while p.poll() is None:
@@ -116,6 +125,8 @@ class ImageProcessInterface(ScrollArea):
         self.separator.setFrameShape(QFrame.HLine)
         self.separator.setObjectName("separator")
 
+        self.paramsButton = PushButton(self.tr("调整参数"), self.consoleGridLayout.widget(), FluentIcon.MORE)
+
         self.processButton = PushButton(self.tr("开始"), self.consoleGridLayout.widget(), FluentIcon.SEND_FILL)
 
         self.__processThread = None
@@ -152,6 +163,7 @@ class ImageProcessInterface(ScrollArea):
         self.rightImgOutputLayout.addWidget(self.rightImgOutputSaveButton, 0, 3, 1, 1)
         self.rightImgOutputLayout.addWidget(self.rightImgPathOpenButton, 0, 4, 1, 1)
 
+        self.consoleGridLayout.addWidget(self.paramsButton)
         self.consoleGridLayout.addWidget(self.processButton)
 
         self.vBoxLayout.addLayout(self.imgGridLayout)
@@ -196,6 +208,7 @@ class ImageProcessInterface(ScrollArea):
         self.leftImgBox.imgGeometryChange.connect(self.rightImgBox.updateImgGeometry)
         self.rightImgBox.imgGeometryChange.connect(self.leftImgBox.updateImgGeometry)
 
+        self.paramsButton.clicked.connect(self.__changeParams)
         self.processButton.clicked.connect(self.__startProcess)
 
     def isProcessing(self):
@@ -279,12 +292,17 @@ class ImageProcessInterface(ScrollArea):
         self.rightImgInfoLabel.setText(info)
 
     def __lockInputAndOutput(self, lock: bool):
+        self.paramsButton.setEnabled(not lock)
         self.processButton.setEnabled(not lock)
         self.leftImgBox.setLock(lock)
         self.leftImgInput.setEnabled(not lock)
         self.leftImgInputImageButton.setEnabled(not lock)
         self.leftImgInputDirButton.setEnabled(not lock)
         self.rightImgOutputSaveButton.setEnabled(not lock)
+
+    def __changeParams(self):
+        paramsDialog = ParamsDialog(self.tr("调整参数"), self.window())
+        paramsDialog.exec()
 
     def __startProcess(self):
         url = self.leftImgBox.url()
@@ -295,6 +313,9 @@ class ImageProcessInterface(ScrollArea):
             self.progressTip.show()
             self.__lockInputAndOutput(True)
             outputPath = f"{cfg.get(cfg.tmpFolder)}/{os.path.basename(url)}"
+            if cfg.modelFormat.value != "Auto":
+                outputPathWtoExt, _ = os.path.splitext(outputPath)
+                outputPath = outputPathWtoExt + '.' + cfg.modelFormat.value
             self.__processThread = ProcessThread(url, outputPath)
             self.__processThread.done.connect(self.__onProcessDone)
             self.__processThread.progressChange.connect(self.__onProcessProgressChanged)
@@ -363,6 +384,9 @@ class ImageProcessInterface(ScrollArea):
         super().resizeEvent(event)
         if self.progressTip is not None:
             self.progressTip.move(self.progressTip.getSuitablePos())
+
+    def test(self):
+        print("test")
 
 
 if __name__ == "__main__":

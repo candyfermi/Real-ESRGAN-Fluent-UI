@@ -5,13 +5,7 @@ import subprocess
 from enum import Enum
 
 from app.common.config import cfg
-
-
-class ModelName(Enum):
-    # REALESR_ANIMEVEDIOV3 = "realesr-animevideov3"
-    REALESRGAN_X4PLUS = "realesrgan-x4plus"
-    REALESRGAN_X4PLUS_ANIME = "realesrgan-x4plus-anime"
-    REALESRNET_X4PLUS = "realesrnet-x4plus"
+from process.modelConst import ModelName
 
 
 def realesrganProcess(inputPath: str,
@@ -19,7 +13,7 @@ def realesrganProcess(inputPath: str,
                       scale: int = 4,
                       tileSize: int = 0,
                       modelPath: str = None,
-                      modelName: ModelName = ModelName.REALESRGAN_X4PLUS,
+                      modelName: str = ModelName.REALESRGAN_X4PLUS.value,
                       gpuId: list = None,
                       loadProcSave: list = None,
                       enableTTA: bool = False,
@@ -28,7 +22,7 @@ def realesrganProcess(inputPath: str,
     command = f"process/realesrgan-ncnn-vulkan-20220424-windows/realesrgan-ncnn-vulkan.exe -i {inputPath} -o {outputPath} -s {scale} -t {tileSize}"
     if modelPath is not None:
         command += f" -m {modelPath}"
-    command += f" -n {modelName.value}"
+    command += f" -n {modelName}"
     if gpuId is not None:
         if len(gpuId) == 1:
             command += f" -g {gpuId[0]}"
@@ -42,7 +36,7 @@ def realesrganProcess(inputPath: str,
     if enableTTA:
         command += " -x"
     if outputFormat is not None:
-        command += f" -f {outputFormat}"
+        command += f" -f ext/{outputFormat}"
     if verboseOutput:
         command += " -v"
 

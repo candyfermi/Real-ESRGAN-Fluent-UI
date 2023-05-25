@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLay
     QGraphicsPixmapItem, QSizePolicy, QFrame, QStyleOption, QStyle, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QWheelEvent, QImage, QPainter
 from PyQt5.QtCore import Qt, QMimeData, QEasingCurve, QEvent, pyqtSignal, QObject
-from PyQt5.uic.properties import QtGui
 from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon, Theme
 import sys
 

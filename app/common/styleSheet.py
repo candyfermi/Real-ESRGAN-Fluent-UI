@@ -11,6 +11,7 @@ class StyleSheet(StyleSheetBase, Enum):
     IMAGE_PROCESS_INTERFACE = "image_process_interface"
     SETTING_INTERFACE = "setting_interface"
     PROGRESS_TIP = "progress_tip"
+    PARAMS_DIALOG = "params_dialog"
 
     def path(self, theme=Theme.AUTO):
         theme = qconfig.theme if theme == Theme.AUTO else theme
