@@ -14,7 +14,6 @@ from app.common.styleSheet import StyleSheet
 
 
 class SettingInterface(ScrollArea):
-
     tmpFolderChanged = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -34,6 +33,18 @@ class SettingInterface(ScrollArea):
             self.tr("程序输出将临时存储到此目录，若生成后没有执行移动操作则可以到此目录查看"),
             cfg.get(cfg.tmpFolder),
             self.tmpFolderGroup
+        )
+
+        # RealESRGAN可执行文件存储位置
+        self.exeFolderGroup = SettingCardGroup(
+            self.tr("RealESRGAN可执行文件存储目录"), self.scrollWidget
+        )
+        self.exeFolderCard = PushSettingCard(
+            self.tr("选择一个目录"),
+            FluentIcon.FOLDER,
+            self.tr("程序将运行此目录下realesrgan-ncnn-vulkan.exe可执行文件"),
+            cfg.get(cfg.exePos),
+            self.exeFolderGroup
         )
 
         # 个性化
@@ -123,6 +134,8 @@ class SettingInterface(ScrollArea):
 
         self.tmpFolderGroup.addSettingCard(self.tmpFolderCard)
 
+        self.exeFolderGroup.addSettingCard(self.exeFolderCard)
+
         self.personalizationGroup.addSettingCard(self.themeCard)
         self.personalizationGroup.addSettingCard(self.themeColorCard)
         self.personalizationGroup.addSettingCard(self.zoomCard)
@@ -133,6 +146,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.tmpFolderGroup)
+        self.expandLayout.addWidget(self.exeFolderGroup)
         self.expandLayout.addWidget(self.personalizationGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
@@ -156,12 +170,28 @@ class SettingInterface(ScrollArea):
         cfg.set(cfg.tmpFolder, folder)
         self.tmpFolderCard.setContent(folder)
 
+    def __onExeFolderCardClicked(self):
+        folder = QFileDialog.getExistingDirectory(
+            self,
+            self.tr("选择一个目录"),
+            "./"
+        )
+        if not folder or cfg.get(cfg.exePos) == folder:
+            return
+
+        cfg.set(cfg.exePos, folder)
+        self.exeFolderCard.setContent(folder)
+
     def __connectSignalToSlot(self):
         cfg.appRestartSig.connect(self.__showRestartTooltip)
         cfg.themeChanged.connect(setTheme)
 
         self.tmpFolderCard.clicked.connect(
             self.__onTmpFolderCardClicked
+        )
+
+        self.exeFolderCard.clicked.connect(
+            self.__onExeFolderCardClicked
         )
 
         self.themeColorCard.colorChanged.connect(setThemeColor)

@@ -19,7 +19,7 @@ def realesrganProcess(inputPath: str,
                       enableTTA: bool = False,
                       outputFormat: str = None,
                       verboseOutput: bool = False):
-    command = f"process/realesrgan-ncnn-vulkan-20220424-windows/realesrgan-ncnn-vulkan.exe -i {inputPath} -o {outputPath} -s {scale} -t {tileSize}"
+    command = f"{cfg.exePos.value}/realesrgan-ncnn-vulkan.exe -i {inputPath} -o {outputPath} -s {scale} -t {tileSize}"
     if modelPath is not None:
         command += f" -m {modelPath}"
     command += f" -n {modelName}"

@@ -57,8 +57,6 @@ class ImageBox(QWidget):
 
         self.__label.move(self.view.x() // 2, self.view.y() // 2)
 
-        self.show()
-
     def url(self):
         return self.__url
 
@@ -71,7 +69,7 @@ class ImageBox(QWidget):
     def setImage(self, url):
         if self.__lock:
             return
-        if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", "jpeg", ".png", ".bmp"]:
+        if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", "jpeg", ".png", ".bmp", ".webp"]:
             self.__url = url
             self.__originImage = QImage(url)
             self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
@@ -119,7 +117,7 @@ class ImageBox(QWidget):
             urls = event.mimeData().urls()
             if len(urls) is 1:
                 url = urls[0].toLocalFile()
-                if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", ".jpeg", ".png", ".bmp"]:
+                if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
                     self.__url = url
                     self.__originImage = QImage(url)
                     self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
@@ -274,16 +272,3 @@ class ImageBox(QWidget):
     def resizeEvent(self, event):
         self.moveLabelToCenter()
 
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    # 创建主窗口
-    window = ImageBox(None, True)
-    window.setWindowTitle("My PyQt App")
-
-    # 显示主窗口
-    window.show()
-
-    # 运行应用程序事件循环
-    sys.exit(app.exec_())

@@ -2,7 +2,7 @@ from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QMessageBox
 from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, NavigationItemPosition, MessageBox, FluentIcon, \
-    MessageDialog, qrouter
+    MessageDialog, qrouter, ScrollArea
 from qframelesswindow import FramelessWindow
 
 from app.common.signalBus import signalBus
@@ -116,8 +116,8 @@ class MainWindow(FramelessWindow):
 
     def initWindow(self):
         self.resize(960, 780)
-        self.setMinimumWidth(600)
-        self.setMinimumHeight(400)
+        self.setMinimumWidth(800)
+        self.setMinimumHeight(500)
         self.setWindowIcon(QIcon(':/res/image/icon.png'))
         self.setWindowTitle('RealESRGAN Fluent UI')
         self.titleBar.setAttribute(Qt.WA_StyledBackground)

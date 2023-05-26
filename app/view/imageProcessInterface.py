@@ -2,7 +2,6 @@ import os.path
 import re
 import shutil
 import sys
-from typing import Union
 
 from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt, QEventLoop, QTimer, QThread, QUrl, QPoint
 from PyQt5.QtGui import QIcon, QDesktopServices, QPainter, QColor
@@ -170,8 +169,6 @@ class ImageProcessInterface(ScrollArea):
         self.vBoxLayout.addWidget(self.separator)
         self.vBoxLayout.addLayout(self.consoleGridLayout)
 
-        self.show()
-
         self.__connectSignalToSlot()
 
     def __initLayout(self):
@@ -218,7 +215,7 @@ class ImageProcessInterface(ScrollArea):
         fileDialog = QFileDialog()
         fileDialog.setFileMode(QFileDialog.ExistingFile)
         fileDialog.setWindowTitle(self.tr("选择一张图片"))
-        fileDialog.setNameFilter(self.tr("图片文件 (*.jpg *.jpeg *.png *.bmp)"))
+        fileDialog.setNameFilter(self.tr("图片文件 (*.jpg *.jpeg *.png *.bmp *.webp)"))
         fileDialog.setDirectory(".")
         if fileDialog.exec_():
             urls = fileDialog.selectedUrls()
@@ -244,7 +241,7 @@ class ImageProcessInterface(ScrollArea):
                 destUrl, _ = fileDialog.getSaveFileName(self,
                                                         self.tr("另存为"),
                                                         os.path.basename(sourceUrl),
-                                                        self.tr("图片 (*.jpg *.jpeg *.png *.bmp)"))
+                                                        self.tr("图片 (*.jpg *.jpeg *.png *.bmp *.webp)"))
                 if destUrl:
                     shutil.move(sourceUrl, destUrl)
                     InfoBar.success(
@@ -385,19 +382,3 @@ class ImageProcessInterface(ScrollArea):
         if self.progressTip is not None:
             self.progressTip.move(self.progressTip.getSuitablePos())
 
-    def test(self):
-        print("test")
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    # 创建主窗口
-    window = ImageProcessInterface(None)
-    window.setWindowTitle("My PyQt App")
-
-    # 显示主窗口
-    window.show()
-
-    # 运行应用程序事件循环
-    sys.exit(app.exec_())

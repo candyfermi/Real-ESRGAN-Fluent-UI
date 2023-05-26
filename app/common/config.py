@@ -24,6 +24,11 @@ class Config(QConfig):
         "Folders", "Temp", "tmp", FolderValidator()
     )
 
+    # 可执行文件目录
+    exePos = ConfigItem(
+        "Exe", "ExePos", "process/realesrgan-ncnn-vulkan-20220424-windows", FolderValidator()
+    )
+
     # main window
     dpiScale = OptionsConfigItem(
         "MainWindow", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True
@@ -55,7 +60,7 @@ class Config(QConfig):
 
 YEAR = 2023
 AUTHOR = "Candy Fermi"
-VERSION = "v0.1.0"
+VERSION = "v0.1.1"
 REPO_URL = "https://github.com/candyfermi/Real-ESRGAN-Fluent-UI"
 
 cfg = Config()

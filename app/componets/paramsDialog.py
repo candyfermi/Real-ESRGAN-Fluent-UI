@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal
 from PyQt5.QtGui import QColor, QIcon
@@ -88,6 +88,13 @@ class MOptionsSettingCard(ExpandSettingCard):
                 self.choiceLabel.adjustSize()
 
 
+class MSettingCardGroup(SettingCardGroup):
+
+    def adjustSize(self):
+        h = self.cardLayout.heightForWidth(self.width()) + 20
+        return self.resize(self.width(), h)
+
+
 class ParamsCard(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -95,11 +102,9 @@ class ParamsCard(ScrollArea):
         self.view = QWidget()
         self.paramsLayout = ExpandLayout(self.view)
 
-        self.paramsGroup = SettingCardGroup(
+        self.paramsGroup = MSettingCardGroup(
             "", self.view
         )
-
-        self.paramsGroup.titleLabel.setFixedHeight(0)
 
         self.formatBox = ComboBoxSettingCard(
             cfg.modelFormat,
@@ -144,7 +149,7 @@ class ParamsCard(ScrollArea):
         self.__initWidget()
 
     def __initWidget(self):
-        self.setMinimumSize(800, 500)
+        self.setMinimumSize(600, 300)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setViewportMargins(0, 0, 0, 0)
@@ -157,12 +162,14 @@ class ParamsCard(ScrollArea):
         self.__initLayout()
 
     def __initLayout(self):
+        self.paramsGroup.titleLabel.setFixedHeight(0)
+
         self.paramsGroup.addSettingCard(self.formatBox)
         self.paramsGroup.addSettingCard(self.modelNameBox)
         self.paramsGroup.addSettingCard(self.enableTTABox)
 
         self.paramsLayout.setSpacing(20)
-        self.paramsLayout.setContentsMargins(20, 10, 20, 0)
+        self.paramsLayout.setContentsMargins(10, 0, 10, 0)
         self.paramsLayout.addWidget(self.paramsGroup)
         self.paramsLayout.addWidget(self.recoverDefaultButton)
 
