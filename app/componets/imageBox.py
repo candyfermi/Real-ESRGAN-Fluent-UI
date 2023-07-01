@@ -2,10 +2,10 @@ import os
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLayout, QGraphicsView, QGraphicsScene, \
-    QGraphicsPixmapItem, QSizePolicy, QFrame, QStyleOption, QStyle, QVBoxLayout
+    QGraphicsPixmapItem, QSizePolicy, QFrame, QStyleOption, QStyle, QVBoxLayout, QAction
 from PyQt5.QtGui import QPixmap, QWheelEvent, QImage, QPainter
 from PyQt5.QtCore import Qt, QMimeData, QEasingCurve, QEvent, pyqtSignal, QObject
-from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon, Theme
+from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon, Theme, RoundMenu, Action, MenuAnimationType
 import sys
 
 from app.common.config import cfg
@@ -208,6 +208,29 @@ class ImageBox(QWidget):
                 # 更新上一次记录的鼠标位置
                 self.__lastMousePos = event.pos()
 
+    def contextMenuEvent(self, e):
+        menu = RoundMenu(parent=self)
+
+        resizeAction = Action(FluentIcon.ZOOM, self.tr("调整至合适大小"))
+        resizeAction.triggered.connect(self.setPreferredImageSize)
+        if self.__originImage is None:
+            resizeAction.setEnabled(False)
+
+        copyAction = Action(FluentIcon.COPY, self.tr("复制"))
+        copyAction.triggered.connect(self.copyImage)
+        if self.__originImage is None:
+            copyAction.setEnabled(False)
+
+        pasteAction = Action(FluentIcon.PASTE, self.tr("粘贴"))
+        pasteAction.triggered.connect(self.pasteImage)
+
+        menu.addAction(copyAction)
+        menu.addAction(pasteAction)
+        menu.addSeparator()
+        menu.addAction(resizeAction)
+
+        menu.exec(e.globalPos(), aniType=MenuAnimationType.DROP_DOWN)
+
     def moveLabelToCenter(self):
         self.__label.move((self.view.width() - self.__label.width()) // 2,
                           (self.view.height() - self.__label.height()) // 2)
@@ -220,6 +243,16 @@ class ImageBox(QWidget):
             )
         else:
             self.infoChange.emit("")
+
+    def copyImage(self):
+        if self.__originImage is not None:
+            clipboard = QApplication.clipboard()
+            clipboard.setImage(self.__originImage)
+
+    def pasteImage(self):
+        if self.__enableDrop is True:
+            clipboard = QApplication.clipboard()
+            # todo
 
     def setPreferredImageSize(self):
         if self.__originImage is not None:
@@ -271,4 +304,3 @@ class ImageBox(QWidget):
 
     def resizeEvent(self, event):
         self.moveLabelToCenter()
-

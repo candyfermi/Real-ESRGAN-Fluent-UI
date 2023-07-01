@@ -124,13 +124,11 @@ class ParamsCard(ScrollArea):
             self.tr("使用的超分辨率模型"),
             texts=[
                 "RealESRGAN-X4Plus",
-                "RealESRGAN-X4Plus_Anime",
-                "RealESRNet-X4Plus"
+                "RealESRGAN-X4Plus_Anime"
             ],
             tips=[
                 self.tr("4倍超分辨率模型"),
-                self.tr("4倍超分辨率模型, 适用于动漫风格图片"),
-                self.tr("4倍超分辨率模型, 效果较差，不建议使用"),
+                self.tr("4倍超分辨率模型, 适用于动漫风格图片")
             ],
             parent=self.paramsGroup
         )

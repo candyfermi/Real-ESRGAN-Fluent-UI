@@ -44,7 +44,7 @@ class Config(QConfig):
 
     modelName = OptionsConfigItem(
         "Model", "ModelName", ModelName.REALESRGAN_X4PLUS.value,
-        OptionsValidator([ModelName.REALESRGAN_X4PLUS.value, ModelName.REALESRGAN_X4PLUS_ANIME.value, ModelName.REALESRNET_X4PLUS.value])
+        OptionsValidator([ModelName.REALESRGAN_X4PLUS.value, ModelName.REALESRGAN_X4PLUS_ANIME.value])
     )
 
     modelEnableTTA = ConfigItem(
