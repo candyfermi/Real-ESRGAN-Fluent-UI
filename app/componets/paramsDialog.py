@@ -79,7 +79,7 @@ class MOptionsSettingCard(ExpandSettingCard):
         """ select button according to the value """
         qconfig.set(self.configItem, value)
 
-        for button in self.viewLayout.widgets:
+        for button in self.buttonGroup.buttons():
             isChecked = button.property(self.configName) == value
             button.setChecked(isChecked)
 

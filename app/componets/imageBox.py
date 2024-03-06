@@ -1,14 +1,15 @@
 import os
 
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLayout, QGraphicsView, QGraphicsScene, \
-    QGraphicsPixmapItem, QSizePolicy, QFrame, QStyleOption, QStyle, QVBoxLayout, QAction
-from PyQt5.QtGui import QPixmap, QWheelEvent, QImage, QPainter
-from PyQt5.QtCore import Qt, QMimeData, QEasingCurve, QEvent, pyqtSignal, QObject
-from qfluentwidgets import SmoothScrollArea, PixmapLabel, FluentIcon, Theme, RoundMenu, Action, MenuAnimationType
-import sys
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QSizePolicy, QVBoxLayout
+from PyQt5.QtGui import QPixmap, QImage, QDropEvent
+from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QBuffer, QIODevice, QUrl, QPoint
+from qfluentwidgets import FluentIcon, Theme, RoundMenu, Action, MenuAnimationType
+import hashlib
+from bs4 import BeautifulSoup
 
 from app.common.config import cfg
+from app.common.networkUtil import ImageDownloader
 
 
 class ImageBox(QWidget):
@@ -26,8 +27,6 @@ class ImageBox(QWidget):
         self.view.setObjectName("imageBox")
         self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.view.setMinimumSize(0, 0)
-
-        self.__lastMousePos = None
 
         self.__label = QLabel(self)
         self.__label.setAlignment(Qt.AlignCenter)
@@ -56,6 +55,12 @@ class ImageBox(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.__label.move(self.view.x() // 2, self.view.y() // 2)
+        self.__lastMousePos = QPoint(self.view.x() // 2, self.view.y() // 2)
+
+        self.clipboard = QApplication.clipboard()
+        self.setFocusPolicy(Qt.StrongFocus)
+
+        self.imageDownloader = ImageDownloader()
 
     def url(self):
         return self.__url
@@ -66,14 +71,21 @@ class ImageBox(QWidget):
     def setLock(self, lock: bool):
         self.__lock = lock
 
-    def setImage(self, url):
+    def setImage(self, url: str | bytes | os.PathLike[str] | os.PathLike[bytes]):
         if self.__lock:
             return
         if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", "jpeg", ".png", ".bmp", ".webp"]:
             self.__url = url
             self.__originImage = QImage(url)
             self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
-            self.__label.setGeometry(QtCore.QRect(0, 0, self.__label.pixmap().width(), self.__label.pixmap().height()))
+            self.__label.setGeometry(
+                QtCore.QRect(
+                    0,
+                    0,
+                    self.__label.pixmap().width(),
+                    self.__label.pixmap().height()
+                )
+            )
             self.__originImageScaleFactor = 1
             self.moveLabelToCenter()
             self.__updateInfoLabel()
@@ -86,6 +98,91 @@ class ImageBox(QWidget):
             self.__enableDrag = False
             self.__updateInfoLabel()
             self.dispIcon(FluentIcon.FOLDER)
+
+    # 直接输入QImage, 先存到tmp目录, 目前统一保存为png格式
+    def __setImageFromImage(self, image: QImage) -> bool:
+        if self.__lock:
+            return False
+        # 计算图片数据的MD5作为文件名
+        buffer = QBuffer()
+        buffer.open(QIODevice.ReadWrite)
+        image.save(buffer, format="PNG")
+        md5 = hashlib.md5(buffer.data()).hexdigest()
+        url = f"{cfg.get(cfg.tmpFolder)}/{md5.lower()}.png"
+        if image.save(url, format="PNG"):
+            self.__url = url
+            self.__originImage = image
+            self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
+            self.__label.setGeometry(
+                QtCore.QRect(
+                    0,
+                    0,
+                    self.__label.pixmap().width(),
+                    self.__label.pixmap().height()
+                )
+            )
+            self.__originImageScaleFactor = 1
+            self.moveLabelToCenter()
+            self.__enableDrag = True
+            self.__updateInfoLabel()
+            self.dropSignal.emit(url)
+            self.setPreferredImageSize()
+            return True
+        else:
+            return False
+
+    def __setImageFromHtml(self, html: str) -> bool:
+        if self.__lock:
+            return False
+        soup = BeautifulSoup(html, "html.parser")
+        img = soup.find("img")
+        if img is None:
+            return False
+        src = img.get("src")
+        if src is None:
+            return False
+        self.imageDownloader.downloadImage(src)
+        self.imageDownloader.downloadFinished.connect(self.__setImageFromImage)
+        self.imageDownloader.downloadError.connect(lambda err: print(err))
+
+    def __setUrls(self, urls: list) -> bool:
+        if self.__lock:
+            return False
+        if len(urls) == 1:
+            url = urls[0].toLocalFile()
+            if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
+                self.__url = url
+                self.__originImage = QImage(url)
+                self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
+                self.__label.setGeometry(
+                    QtCore.QRect(
+                        0,
+                        0,
+                        self.__label.pixmap().width(),
+                        self.__label.pixmap().height()
+                    )
+                )
+                self.__originImageScaleFactor = 1
+                self.moveLabelToCenter()
+                self.__enableDrag = True
+                self.__updateInfoLabel()
+                self.dropSignal.emit(url)
+                self.setPreferredImageSize()
+                return True
+            elif self.__acceptDir and os.path.isdir(url):
+                self.__url = url
+                self.__originImage = None
+                self.__originImageScaleFactor = 1
+                self.__enableDrag = False
+                self.__label.setPixmap(QPixmap(FluentIcon.FOLDER.path()))
+                self.moveLabelToCenter()
+                self.__updateInfoLabel()
+                self.dropSignal.emit(url)
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def clearImage(self):
         self.__url = None
@@ -104,48 +201,35 @@ class ImageBox(QWidget):
         self.moveLabelToCenter()
 
     def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
+        if (
+            event.mimeData().hasUrls() or
+            event.mimeData().hasImage() or
+            event.mimeData().hasHtml()
+        ):
             event.accept()
         else:
             event.ignore()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent):
         if self.__lock:
             event.ignore()
             return
         if event.mimeData().hasUrls():
             urls = event.mimeData().urls()
-            if len(urls) is 1:
-                url = urls[0].toLocalFile()
-                if os.path.isfile(url) and os.path.splitext(url)[1] in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
-                    self.__url = url
-                    self.__originImage = QImage(url)
-                    self.__label.setPixmap(QPixmap.fromImage(self.__originImage))
-                    self.__label.setGeometry(
-                        QtCore.QRect(0, 0, self.__label.pixmap().width(), self.__label.pixmap().height()))
-                    self.__originImageScaleFactor = 1
-                    self.moveLabelToCenter()
-                    self.__enableDrag = True
-                    self.__updateInfoLabel()
-                    self.dropSignal.emit(url)
-                    self.setPreferredImageSize()
-                    event.accept()
-                elif self.__acceptDir and os.path.isdir(url):
-                    self.__url = url
-                    self.__originImage = None
-                    self.__originImageScaleFactor = 1
-                    self.__enableDrag = False
-                    self.__label.setPixmap(QPixmap(FluentIcon.FOLDER.path()))
-                    self.moveLabelToCenter()
-                    self.__updateInfoLabel()
-                    self.dropSignal.emit(url)
-                    event.accept()
-                else:
-                    event.ignore()
-            else:
-                event.ignore()
-        else:
-            event.ignore()
+            if self.__setUrls(urls):
+                event.accept()
+                return
+        if event.mimeData().hasImage():
+            image = QImage(event.mimeData().imageData())
+            if self.__setImageFromImage(image):
+                event.accept()
+                return
+        if event.mimeData().hasHtml():
+            html = event.mimeData().html()
+            if self.__setImageFromHtml(html):
+                event.accept()
+                return
+        event.ignore()
 
     # 滚轮缩放
     def wheelEvent(self, event):
@@ -166,20 +250,29 @@ class ImageBox(QWidget):
                 newPosY = prevPos.y()
 
             self.__label.setPixmap(
-                QPixmap.fromImage(self.__originImage).scaled(self.__originImage.width() * self.__originImageScaleFactor,
-                                                             self.__originImage.width() * self.__originImageScaleFactor,
-                                                             Qt.KeepAspectRatio,
-                                                             Qt.FastTransformation))
+                QPixmap.fromImage(self.__originImage).scaled(
+                    int(self.__originImage.width() * self.__originImageScaleFactor),
+                    int(self.__originImage.width() * self.__originImageScaleFactor),
+                    Qt.KeepAspectRatio,
+                    Qt.FastTransformation
+                )
+            )
 
-            self.__label.setGeometry(QtCore.QRect(newPosX,
-                                                  newPosY,
-                                                  self.__label.pixmap().width(),
-                                                  self.__label.pixmap().height()))
+            self.__label.setGeometry(
+                QtCore.QRect(
+                    int(newPosX),
+                    int(newPosY),
+                    int(self.__label.pixmap().width()),
+                    int(self.__label.pixmap().height())
+                )
+            )
 
-            self.imgGeometryChange.emit(self.__label.x(),
-                                        self.__label.y(),
-                                        self.__label.pixmap().width(),
-                                        self.__label.pixmap().height())
+            self.imgGeometryChange.emit(
+                self.__label.x(),
+                self.__label.y(),
+                self.__label.pixmap().width(),
+                self.__label.pixmap().height()
+            )
 
             self.__updateInfoLabel()
 
@@ -191,8 +284,11 @@ class ImageBox(QWidget):
                 self.__lastMousePos = event.pos()
 
     def mouseMoveEvent(self, event):
-        if self.__enableDrag and self.__originImage is not None and self.__label.geometry().contains(
-                self.__lastMousePos):
+        if (
+            self.__enableDrag and
+            self.__originImage is not None and
+            self.__label.geometry().contains(self.__lastMousePos)
+        ):
             if event.buttons() & Qt.LeftButton:
                 # 计算鼠标移动的距离
                 offset = event.pos() - self.__lastMousePos
@@ -200,13 +296,33 @@ class ImageBox(QWidget):
                 # 更新图片的位置
                 self.__label.move(self.__label.pos() + offset)
 
-                self.imgGeometryChange.emit(self.__label.x(),
-                                            self.__label.y(),
-                                            self.__label.pixmap().width(),
-                                            self.__label.pixmap().height())
+                self.imgGeometryChange.emit(
+                    self.__label.x(),
+                    self.__label.y(),
+                    self.__label.pixmap().width(),
+                    self.__label.pixmap().height()
+                )
 
                 # 更新上一次记录的鼠标位置
                 self.__lastMousePos = event.pos()
+
+    # 快捷键
+    def keyPressEvent(self, e):
+        if e.modifiers() == Qt.ControlModifier:
+            if e.key() == Qt.Key_C and self.__originImage is not None:
+                self.copyImage()
+            elif (
+                e.key() == Qt.Key_V and
+                self.__enableDrop and
+                (
+                    self.clipboard.mimeData().hasImage() or
+                    self.clipboard.mimeData().hasUrls() or
+                    self.clipboard.mimeData().hasHtml()
+                ) and
+                not self.lock()
+            ):
+                self.pasteImage()
+        e.accept()
 
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
@@ -223,6 +339,16 @@ class ImageBox(QWidget):
 
         pasteAction = Action(FluentIcon.PASTE, self.tr("粘贴"))
         pasteAction.triggered.connect(self.pasteImage)
+        if (
+            not self.__enableDrop or
+            not (
+                self.clipboard.mimeData().hasImage() or
+                self.clipboard.mimeData().hasUrls() or
+                self.clipboard.mimeData().hasHtml()
+            ) or
+            self.lock()
+        ):
+            pasteAction.setEnabled(False)
 
         menu.addAction(copyAction)
         menu.addAction(pasteAction)
@@ -232,8 +358,10 @@ class ImageBox(QWidget):
         menu.exec(e.globalPos(), aniType=MenuAnimationType.DROP_DOWN)
 
     def moveLabelToCenter(self):
-        self.__label.move((self.view.width() - self.__label.width()) // 2,
-                          (self.view.height() - self.__label.height()) // 2)
+        self.__label.move(
+            (self.view.width() - self.__label.width()) // 2,
+            (self.view.height() - self.__label.height()) // 2
+        )
 
     def __updateInfoLabel(self):
         if self.__originImage is not None:
@@ -246,13 +374,24 @@ class ImageBox(QWidget):
 
     def copyImage(self):
         if self.__originImage is not None:
-            clipboard = QApplication.clipboard()
-            clipboard.setImage(self.__originImage)
+            mimeData = QMimeData()
+            mimeData.setUrls([QUrl.fromLocalFile(self.__url)])
+            self.clipboard.setMimeData(mimeData)
 
     def pasteImage(self):
         if self.__enableDrop is True:
-            clipboard = QApplication.clipboard()
-            # todo
+            if self.clipboard.mimeData().hasUrls():
+                urls = self.clipboard.mimeData().urls()
+                if self.__setUrls(urls):
+                    return
+            if self.clipboard.mimeData().hasImage():
+                image = QImage(self.clipboard.mimeData().imageData())
+                if self.__setImageFromImage(image):
+                    return
+            if self.clipboard.mimeData().hasHtml():
+                html = self.clipboard.mimeData().html()
+                if self.__setImageFromHtml(html):
+                    return
 
     def setPreferredImageSize(self):
         if self.__originImage is not None:
@@ -261,20 +400,29 @@ class ImageBox(QWidget):
             self.__originImageScaleFactor = widthScale if widthScale < heightScale else heightScale
 
             self.__label.setPixmap(
-                QPixmap.fromImage(self.__originImage).scaled(self.__originImage.width() * self.__originImageScaleFactor,
-                                                             self.__originImage.width() * self.__originImageScaleFactor,
-                                                             Qt.KeepAspectRatio,
-                                                             Qt.FastTransformation))
+                QPixmap.fromImage(self.__originImage).scaled(
+                    int(self.__originImage.width() * self.__originImageScaleFactor),
+                    int(self.__originImage.width() * self.__originImageScaleFactor),
+                    Qt.KeepAspectRatio,
+                    Qt.FastTransformation
+                )
+            )
 
-            self.__label.setGeometry(QtCore.QRect(0,
-                                                  (self.view.height() - self.__label.pixmap().height()) // 2,
-                                                  self.__label.pixmap().width(),
-                                                  self.__label.pixmap().height()))
+            self.__label.setGeometry(
+                QtCore.QRect(
+                    0,
+                    (self.view.height() - self.__label.pixmap().height()) // 2,
+                    self.__label.pixmap().width(),
+                    self.__label.pixmap().height()
+                )
+            )
 
-            self.imgGeometryChange.emit(self.__label.x(),
-                                        self.__label.y(),
-                                        self.__label.pixmap().width(),
-                                        self.__label.pixmap().height())
+            self.imgGeometryChange.emit(
+                self.__label.x(),
+                self.__label.y(),
+                self.__label.pixmap().width(),
+                self.__label.pixmap().height()
+            )
 
             self.__updateInfoLabel()
 
@@ -282,14 +430,21 @@ class ImageBox(QWidget):
         if self.__originImage is not None:
             self.__originImageScaleFactor = width / self.__originImage.width()
             self.__label.setPixmap(
-                QPixmap.fromImage(self.__originImage).scaled(width,
-                                                             height,
-                                                             Qt.KeepAspectRatio,
-                                                             Qt.FastTransformation))
-            self.__label.setGeometry(QtCore.QRect(x,
-                                                  y,
-                                                  width,
-                                                  height))
+                QPixmap.fromImage(self.__originImage).scaled(
+                    width,
+                    height,
+                    Qt.KeepAspectRatio,
+                    Qt.FastTransformation
+                )
+            )
+            self.__label.setGeometry(
+                QtCore.QRect(
+                    x,
+                    y,
+                    width,
+                    height
+                )
+            )
 
             self.__updateInfoLabel()
 

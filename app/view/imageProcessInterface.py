@@ -1,22 +1,19 @@
 import os.path
 import re
 import shutil
-import sys
 
-from PyQt5.QtCore import QEasingCurve, pyqtSignal, Qt, QEventLoop, QTimer, QThread, QUrl, QPoint
-from PyQt5.QtGui import QIcon, QDesktopServices, QPainter, QColor
-from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QApplication, QVBoxLayout, QLabel, QSizePolicy, QGridLayout, \
-    QFileDialog, QScrollArea
-from qfluentwidgets import PopUpAniStackedWidget, NavigationInterface, ScrollArea, PushButton, FluentIcon, LineEdit, \
-    ToolButton, MessageDialog, InfoBar, InfoBarPosition, ExpandGroupSettingCard, isDarkTheme, ComboBox, \
-    OptionsSettingCard, RangeSettingCard, SwitchSettingCard, ExpandLayout, VBoxLayout, SettingCardGroup
+from PyQt5.QtCore import pyqtSignal, Qt, QTimer, QThread, QUrl
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, QFileDialog
+from qfluentwidgets import (ScrollArea, PushButton, FluentIcon, LineEdit, ToolButton, MessageDialog, InfoBar,
+                            InfoBarPosition)
 
 from app.common.config import cfg
 from app.common.styleSheet import StyleSheet
 from app.componets.imageBox import ImageBox
 from app.componets.paramsDialog import ParamsDialog
 from app.componets.progressTip import ProgressTip
-from process.realesrganProcess import realesrganProcess, ModelName
+from process.realesrganProcess import realesrganProcess
 
 from app.common import resource
 
@@ -310,9 +307,10 @@ class ImageProcessInterface(ScrollArea):
             self.progressTip.show()
             self.__lockInputAndOutput(True)
             outputPath = f"{cfg.get(cfg.tmpFolder)}/{os.path.basename(url)}"
+            outputPathWtoExt, origExt = os.path.splitext(outputPath)
+            outputPath = f"{outputPathWtoExt}_4X{origExt}"
             if cfg.modelFormat.value != "Auto":
-                outputPathWtoExt, _ = os.path.splitext(outputPath)
-                outputPath = outputPathWtoExt + '.' + cfg.modelFormat.value
+                outputPath = f"{outputPathWtoExt}_4X.{cfg.modelFormat.value}"
             self.__processThread = ProcessThread(url, outputPath)
             self.__processThread.done.connect(self.__onProcessDone)
             self.__processThread.progressChange.connect(self.__onProcessProgressChanged)
