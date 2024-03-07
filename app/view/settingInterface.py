@@ -1,13 +1,11 @@
 # coding:utf-8
-from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
-                            OptionsSettingCard, PushSettingCard,
-                            HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
-                            ComboBoxSettingCard, ExpandLayout, Theme, CustomColorSettingCard,
-                            setTheme, setThemeColor, RangeSettingCard, isDarkTheme, FluentIcon)
+from qfluentwidgets import (SettingCardGroup, PushSettingCard, PrimaryPushSettingCard, ScrollArea,
+                            ComboBoxSettingCard, ExpandLayout, CustomColorSettingCard, setTheme, setThemeColor,
+                            FluentIcon)
 from qfluentwidgets import InfoBar
-from PyQt5.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
+from PyQt5.QtCore import Qt, pyqtSignal, QUrl
 from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog
 
 from app.common.config import cfg, AUTHOR, VERSION, YEAR, REPO_URL
 from app.common.styleSheet import StyleSheet
@@ -107,8 +105,7 @@ class SettingInterface(ScrollArea):
             self.tr("查看代码"),
             FluentIcon.INFO,
             self.tr("关于"),
-            '© ' + self.tr('Copyright') + f" {YEAR}, {AUTHOR}. " +
-            self.tr('Version') + f" {VERSION[1:]}",
+            f"© {self.tr('Copyright')} {YEAR}, {AUTHOR}. {self.tr('Version')} {VERSION[1:]}",
             self.aboutGroup
         )
 

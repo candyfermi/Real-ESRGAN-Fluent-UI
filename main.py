@@ -1,11 +1,11 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt, QTranslator, QEventLoop
+from PyQt5.QtCore import Qt, QTranslator
 from PyQt5.QtWidgets import QApplication
 
 from app.view.mainWindow import MainWindow
-from app.common.config import cfg, Language
+from app.common.config import cfg
 
 
 if cfg.get(cfg.dpiScale) == "Auto":
@@ -24,7 +24,9 @@ app = QApplication(sys.argv)
 app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
 
 translator = QTranslator()
-language = cfg.get(cfg.language)
+language = cfg.get(cfg.language).value
+translator.load(language, "locale", ".", ":/res/i18n")
+app.installTranslator(translator)
 
 # 创建主窗口
 window = MainWindow()

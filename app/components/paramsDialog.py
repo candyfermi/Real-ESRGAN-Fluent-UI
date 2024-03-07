@@ -2,10 +2,10 @@ from typing import Union, List
 
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal
 from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QPushButton, QHBoxLayout, QButtonGroup
-from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, OptionsSettingCard, FluentIcon, RangeSettingCard, \
-    SwitchSettingCard, FluentStyleSheet, PrimaryPushButton, PushButton, ComboBoxSettingCard, RadioButton, \
-    FluentIconBase, ExpandSettingCard, OptionsConfigItem, qconfig
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QHBoxLayout, QButtonGroup
+from qfluentwidgets import (ScrollArea, ExpandLayout, SettingCardGroup, FluentIcon, SwitchSettingCard, FluentStyleSheet,
+                            PrimaryPushButton, PushButton, ComboBoxSettingCard, RadioButton, FluentIconBase,
+                            ExpandSettingCard, OptionsConfigItem, qconfig)
 from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
 
 from app.common.styleSheet import StyleSheet

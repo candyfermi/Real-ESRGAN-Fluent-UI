@@ -1,8 +1,8 @@
 from enum import Enum
 
-from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
-                            OptionsValidator, RangeConfigItem, RangeValidator,
-                            FolderListValidator, EnumSerializer, FolderValidator)
+from PyQt5.QtCore import QLocale
+from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator, OptionsValidator,
+                            RangeConfigItem, RangeValidator, FolderValidator, ConfigSerializer)
 
 from process.modelConst import ModelName
 
@@ -10,10 +10,20 @@ from process.modelConst import ModelName
 class Language(Enum):
     """ Language enumeration """
 
-    CHINESE_SIMPLIFIED = "zh"
-    CHINESE_TRADITIONAL = "hk"
-    ENGLISH = "en"
-    AUTO = "Auto"
+    CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
+    CHINESE_TRADITIONAL = QLocale(QLocale.Chinese, QLocale.HongKong)
+    ENGLISH = QLocale(QLocale.English)
+    AUTO = QLocale()
+
+
+class LanguageSerializer(ConfigSerializer):
+    """ Language serializer """
+
+    def serialize(self, language):
+        return language.value.name() if language != Language.AUTO else "Auto"
+
+    def deserialize(self, value: str):
+        return Language(QLocale(value)) if value != "Auto" else Language.AUTO
 
 
 class Config(QConfig):
@@ -34,7 +44,7 @@ class Config(QConfig):
         "MainWindow", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True
     )
     language = OptionsConfigItem(
-        "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), EnumSerializer(Language), restart=True
+        "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True
     )
 
     # 模型参数

@@ -4,7 +4,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QSizePolicy, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QImage, QDropEvent
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QBuffer, QIODevice, QUrl, QPoint
-from qfluentwidgets import FluentIcon, Theme, RoundMenu, Action, MenuAnimationType
+from qfluentwidgets import FluentIcon, Theme, RoundMenu, Action, MenuAnimationType, InfoBar, InfoBarPosition
 import hashlib
 from bs4 import BeautifulSoup
 
@@ -327,7 +327,7 @@ class ImageBox(QWidget):
     def contextMenuEvent(self, e):
         menu = RoundMenu(parent=self)
 
-        resizeAction = Action(FluentIcon.ZOOM, self.tr("调整至合适大小"))
+        resizeAction = Action(FluentIcon.FIT_PAGE, self.tr("调整至合适大小"))
         resizeAction.triggered.connect(self.setPreferredImageSize)
         if self.__originImage is None:
             resizeAction.setEnabled(False)
@@ -377,6 +377,15 @@ class ImageBox(QWidget):
             mimeData = QMimeData()
             mimeData.setUrls([QUrl.fromLocalFile(self.__url)])
             self.clipboard.setMimeData(mimeData)
+            InfoBar.success(
+                title=self.tr("复制完成"),
+                content=self.tr("图片已经复制到剪贴板啦"),
+                orient=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.BOTTOM,
+                duration=1000,
+                parent=self
+            )
 
     def pasteImage(self):
         if self.__enableDrop is True:

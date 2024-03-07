@@ -1,13 +1,12 @@
 # coding: utf-8
 from enum import Enum
 
-from qfluentwidgets import StyleSheetBase, Theme, isDarkTheme, qconfig
+from qfluentwidgets import StyleSheetBase, Theme, qconfig
 
 
 class StyleSheet(StyleSheetBase, Enum):
     """ Style sheet  """
 
-    MAIN_WINDOW = "main_window"
     IMAGE_PROCESS_INTERFACE = "image_process_interface"
     SETTING_INTERFACE = "setting_interface"
     PROGRESS_TIP = "progress_tip"

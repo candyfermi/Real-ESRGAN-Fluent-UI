@@ -1,11 +1,8 @@
 # coding:utf-8
-from typing import Union
-
 from PyQt5.QtCore import QPropertyAnimation, Qt, QTimer, pyqtSignal, QPoint, QRectF
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QLabel, QWidget, QToolButton, QGraphicsOpacityEffect
-
-from qfluentwidgets import FluentStyleSheet, isDarkTheme, Theme, FluentIcon, ProgressBar
+from qfluentwidgets import isDarkTheme, Theme, FluentIcon, ProgressBar
 
 from app.common.styleSheet import StyleSheet
 

@@ -3,8 +3,6 @@
         <file>image/logo.png</file>
         <file>image/icon.png</file>
 
-        <file>qss/dark/main_window.qss</file>
-        <file>qss/light/main_window.qss</file>
         <file>qss/dark/image_process_interface.qss</file>
         <file>qss/light/image_process_interface.qss</file>
         <file>qss/dark/setting_interface.qss</file>
@@ -13,5 +11,8 @@
         <file>qss/light/progress_tip.qss</file>
         <file>qss/dark/params_dialog.qss</file>
         <file>qss/light/params_dialog.qss</file>
+
+        <file>i18n/locale.en_US.qm</file>
+        <file>i18n/locale.zh_CN.qm</file>
     </qresource>
 </RCC>

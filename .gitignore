@@ -166,3 +166,5 @@ config/
 tmp/
 
 dist.zip
+
+app/resource/i18n/locale_raw.ts

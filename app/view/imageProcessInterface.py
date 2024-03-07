@@ -10,9 +10,9 @@ from qfluentwidgets import (ScrollArea, PushButton, FluentIcon, LineEdit, ToolBu
 
 from app.common.config import cfg
 from app.common.styleSheet import StyleSheet
-from app.componets.imageBox import ImageBox
-from app.componets.paramsDialog import ParamsDialog
-from app.componets.progressTip import ProgressTip
+from app.components.imageBox import ImageBox
+from app.components.paramsDialog import ParamsDialog
+from app.components.progressTip import ProgressTip
 from process.realesrganProcess import realesrganProcess
 
 from app.common import resource
@@ -212,7 +212,7 @@ class ImageProcessInterface(ScrollArea):
         fileDialog = QFileDialog()
         fileDialog.setFileMode(QFileDialog.ExistingFile)
         fileDialog.setWindowTitle(self.tr("选择一张图片"))
-        fileDialog.setNameFilter(self.tr("图片文件 (*.jpg *.jpeg *.png *.bmp *.webp)"))
+        fileDialog.setNameFilter(f'{self.tr("图片文件")} (*.jpg *.jpeg *.png *.bmp *.webp)')
         fileDialog.setDirectory(".")
         if fileDialog.exec_():
             urls = fileDialog.selectedUrls()
@@ -238,12 +238,12 @@ class ImageProcessInterface(ScrollArea):
                 destUrl, _ = fileDialog.getSaveFileName(self,
                                                         self.tr("另存为"),
                                                         os.path.basename(sourceUrl),
-                                                        self.tr("图片 (*.jpg *.jpeg *.png *.bmp *.webp)"))
+                                                        f'{self.tr("图片")} (*.jpg *.jpeg *.png *.bmp *.webp)')
                 if destUrl:
                     shutil.move(sourceUrl, destUrl)
                     InfoBar.success(
                         title=self.tr("保存成功"),
-                        content=self.tr("将图片保存至: ") + destUrl,
+                        content=f'{self.tr("将图片保存至")}: )' + destUrl,
                         orient=Qt.Horizontal,
                         isClosable=True,
                         position=InfoBarPosition.TOP,
@@ -259,7 +259,7 @@ class ImageProcessInterface(ScrollArea):
                     shutil.move(sourceUrl, destUrl)
                     InfoBar.success(
                         title=self.tr("保存成功"),
-                        content=self.tr("将目录保存至: ") + destUrl,
+                        content=f'{self.tr("将目录保存至")}: )' + destUrl,
                         orient=Qt.Horizontal,
                         isClosable=True,
                         position=InfoBarPosition.TOP,
@@ -351,7 +351,7 @@ class ImageProcessInterface(ScrollArea):
 
     def __onProcessProgressChanged(self, progress: float):
         if self.progressTip is not None:
-            self.progressTip.setTitle(self.tr("正在处理") + f": {progress}%")
+            self.progressTip.setTitle(f'{self.tr("正在处理")}: {progress}%')
             self.progressTip.setProgress(progress)
 
     def __stopProcessConfirm(self):
