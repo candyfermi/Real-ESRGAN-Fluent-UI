@@ -68,9 +68,9 @@ class Config(QConfig):
     checkUpdateAtStartUp = ConfigItem("Update", "CheckUpdateAtStartUp", True, BoolValidator())
 
 
-YEAR = 2023
+YEAR = 2024
 AUTHOR = "Candy Fermi"
-VERSION = "v0.1.1"
+VERSION = "v0.1.2"
 REPO_URL = "https://github.com/candyfermi/Real-ESRGAN-Fluent-UI"
 
 cfg = Config()
